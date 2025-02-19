@@ -2,11 +2,11 @@ import { MessageFlags } from "discord.js";
 import { Command } from "../../structures/Command";
 
 export default new Command({
-    name: 'ping',
-    description: 'shows client ping',
+    name: 'pong',
+    description: 'shows client pong',
     run: async({ interaction }) => {
         await interaction.reply({
-            content: `Pong pong`,
+            content: `Ping ping`,
             flags: MessageFlags.Ephemeral
         });
     }

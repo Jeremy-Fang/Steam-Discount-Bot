@@ -1,9 +1,13 @@
-import { ApplicationCommandDataResolvable, Client, ClientEvents, Collection } from 'discord.js';
-import { CommandType } from '../typings/Command';
+import { 
+    Client, 
+    ClientEvents, 
+    Collection 
+} from 'discord.js';
+
+import { CommandType } from '../typings/command';
 import { glob } from 'glob';
 import { Event } from './Event';
-
-import { RegisterCommandsOptions } from '../typings/Client';
+import { RegisterCommandsOptions } from '../typings/client';
 
 export class ExtendedClient extends Client {
     commands: Collection<string, CommandType> = new Collection();
@@ -43,7 +47,6 @@ export class ExtendedClient extends Client {
 
     async registerModules() {
         // Commands
-        const slashCommands: ApplicationCommandDataResolvable[] = [];
         const commandFiles = await this.getCommandFilePaths();
 
         console.log(commandFiles);
@@ -53,10 +56,10 @@ export class ExtendedClient extends Client {
             if (!command.name) return;
 
             console.log(command);
-            
+
             this.commands.set(command.name, command);
-            slashCommands.push(command);
         });
+
 
         // Events
         const eventFiles = await this.getEventFilePaths();
@@ -67,5 +70,4 @@ export class ExtendedClient extends Client {
             this.on(event.event, event.run);
         });
     }
-
 }
