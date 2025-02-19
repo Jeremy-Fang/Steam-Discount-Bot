@@ -24,3 +24,7 @@ export type CommandType = {
     cooldown ?: number;
     run: RunFunction;
 } & ChatInputApplicationCommandData;
+
+export interface DiscordAPIPutResponse {
+    length: number;
+}

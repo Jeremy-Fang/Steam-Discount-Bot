@@ -1,10 +1,13 @@
 import { 
     Client, 
     ClientEvents, 
-    Collection 
+    Collection,
+    RequestData,
+    REST,
+    Routes
 } from 'discord.js';
 
-import { CommandType } from '../typings/command';
+import { CommandType, DiscordAPIPutResponse } from '../typings/command';
 import { glob } from 'glob';
 import { Event } from './Event';
 import { RegisterCommandsOptions } from '../typings/client';
@@ -69,5 +72,45 @@ export class ExtendedClient extends Client {
 
             this.on(event.event, event.run);
         });
+    }
+
+    /**
+     * Function that registers command name and description to Discord. 
+     * Required when adding new commands.
+     */
+    async deployCommands() {
+        try {
+            const commandFiles = await this.getCommandFilePaths();
+            const commands: CommandType[] = [];
+
+            await commandFiles.forEach(async (file) => {
+                delete require.cache[file];
+    
+                const command: CommandType = await this.importFile(file);
+
+                if (!command.name || !command.description || !command.run) {
+                    console.log(`[WARNING] The command at ${file} is missing a required property.`)
+    
+                    return;
+                }
+    
+                commands.push(command);
+            });
+
+            console.log("commands", commands);
+    
+            const rest = new REST().setToken(process.env.DISCORD_BOT_TOKEN);
+    
+            // deploy the commands
+            console.log(`Started refreshing ${commands.length} application (/) commands.`);
+    
+            await rest.put(Routes.applicationCommands(process.env.APPLICATION_ID), { body: commands })
+                .then((data: DiscordAPIPutResponse) => {
+                    console.log(data);
+                    console.log(`Successfully reloaded ${data.length} application (/) commands.`);
+                });
+        } catch (err) {
+            console.error(err)
+        }
     }
 }
