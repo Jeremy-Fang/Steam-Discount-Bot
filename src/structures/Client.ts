@@ -2,15 +2,16 @@ import {
     Client, 
     ClientEvents, 
     Collection,
-    RequestData,
     REST,
     Routes
 } from 'discord.js';
 
-import { CommandType, DiscordAPIPutResponse } from '../typings/command';
-import { glob } from 'glob';
+import { CommandType } from '../typings/command';
+import { DiscordAPIPutResponse } from '../typings/rest';
+
 import { Event } from './Event';
 import { RegisterCommandsOptions } from '../typings/client';
+import { getCommandFilePaths, getEventFilePaths } from '../utilities/parser';
 
 export class ExtendedClient extends Client {
     commands: Collection<string, CommandType> = new Collection();
@@ -22,20 +23,6 @@ export class ExtendedClient extends Client {
     start() {
         this.registerModules();
         this.login(process.env.DISCORD_BOT_TOKEN);
-    }
-
-    async getCommandFilePaths() {
-        return (await glob(`**/../commands/*/*.{ts,js}`, { cwd: __dirname })).map(filePath => filePath.slice(0, filePath.lastIndexOf('.')));
-    }
-
-    async getEventFilePaths() {
-        return (await glob(`**/../events/*.{ts,js}`, { cwd: __dirname })).map(filePath => filePath.slice(0, filePath.lastIndexOf('.')));
-    }
-
-    async importFile(filePath: string) {
-        delete require.cache[filePath];
-
-        return (require(filePath))?.default;
     }
 
     async registerCommands({ commands, guildId }: RegisterCommandsOptions) {
@@ -50,25 +37,22 @@ export class ExtendedClient extends Client {
 
     async registerModules() {
         // Commands
-        const commandFiles = await this.getCommandFilePaths();
+        const commandFiles = await getCommandFilePaths(__dirname);
 
-        console.log(commandFiles);
         commandFiles.forEach(async (filePath) => {
-            const command: CommandType = await this.importFile(filePath);
+            const command: CommandType = (await import(filePath))?.default;
 
             if (!command.name) return;
-
-            console.log(command);
 
             this.commands.set(command.name, command);
         });
 
 
         // Events
-        const eventFiles = await this.getEventFilePaths();
+        const eventFiles = await getEventFilePaths(__dirname);
 
         eventFiles.forEach(async (filePath) => {
-            const event: Event<keyof ClientEvents> = await this.importFile(filePath);
+            const event: Event<keyof ClientEvents> = (await import(filePath))?.default;
 
             this.on(event.event, event.run);
         });
@@ -80,13 +64,13 @@ export class ExtendedClient extends Client {
      */
     async deployCommands() {
         try {
-            const commandFiles = await this.getCommandFilePaths();
+            const commandFiles = await getCommandFilePaths(__dirname);
             const commands: CommandType[] = [];
 
-            await commandFiles.forEach(async (file) => {
+            for (const file of commandFiles) {
                 delete require.cache[file];
     
-                const command: CommandType = await this.importFile(file);
+                const command: CommandType = (await import(file))?.default;
 
                 if (!command.name || !command.description || !command.run) {
                     console.log(`[WARNING] The command at ${file} is missing a required property.`)
@@ -95,7 +79,7 @@ export class ExtendedClient extends Client {
                 }
     
                 commands.push(command);
-            });
+            }
 
             console.log("commands", commands);
     

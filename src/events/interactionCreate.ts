@@ -12,6 +12,8 @@ export default new Event(Events.InteractionCreate, async (interaction) => {
     
         if (!command) return await interaction.followUp('You have used a non existent command');
 
+        console.log("command", command);
+        
         await command.run({
             args: interaction.options as CommandInteractionOptionResolver,
             client,
