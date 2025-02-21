@@ -3,11 +3,11 @@ import {
     MessageFlags
 } from "discord.js";
 
-import { Command } from "../../structures/Command";
+import { client } from '../../index';
 
+import { Command } from "../../structures/Command";
 import { ExtendedInteraction } from "../../typings/command";
 
-import { client } from '../../index';
 
 export default new Command({
     name: "webhook",

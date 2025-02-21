@@ -6,17 +6,17 @@ import {
 import { Subcommand } from "../../../structures/Subcommand";
 
 export default new Subcommand({
-    name: 'remove',
-    description: 'Remove a game from the authorized IsThereAnyDeal waitlist',
+    name: 'sync',
+    description: 'Sync a Steam wishlist with the authorized IsThereAnyDeal waitlist',
     options: [
         {
             name: 'id',
-            description: 'Steam game id to remove from waitlist',
+            description: 'Steam id of user whose wishlist you wish to sync',
             type: ApplicationCommandOptionType.Integer,
             required: true
         }
     ],
     run: async ({ interaction }) => {
-        await interaction.reply({ content: `Removed Steam game with Id ${ interaction.options.get('id')?.value } from waitlist`, flags: MessageFlags.Ephemeral })
+        await interaction.reply({ content: `Successfully synced waitlist with Steam User ${ interaction.options.get('id')?.value }`, flags: MessageFlags.Ephemeral })
     }       
 })

@@ -9,6 +9,11 @@ import { Subcommand } from '../structures/Subcommand';
 import { CommandType } from '../typings/command';
 import { SubCommandType } from '../typings/subcommand';
 
+/**
+ * Function that pattern matches file structure to determine subcommand structure
+ * and returns a nested Collection maping the parent command to subcommands
+ * @returns Collection<string, Collection<string, SubCommandType>> map of subcommands
+ */
 export const getSubcommandMap = async () => {
     const subcommandFiles = await getSubCommandFiles(__dirname);
     const subcommands: Collection<string, Collection<string, SubCommandType>> = new Collection();
@@ -33,6 +38,12 @@ export const getSubcommandMap = async () => {
     return subcommands;
 }
 
+/**
+ * Function that pattern matches file structure to determine command structure
+ * and returns a Collection maping command names to command Objects denoted by 
+ * the Discord API
+ * @returns Collection<string, CommandType> map of commands
+ */
 export const getCommandMap = async () => {
     const commandFiles = await getCommandFilePaths(__dirname);
     
@@ -41,7 +52,7 @@ export const getCommandMap = async () => {
 
     for (const file of commandFiles) {
         delete require.cache[file];
-        
+
         const command: CommandType = (await import(file))?.default;
 
         if (!command.name) continue;

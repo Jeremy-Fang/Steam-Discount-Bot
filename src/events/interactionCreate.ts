@@ -3,6 +3,9 @@ import { client } from ".."
 import { Event } from "../structures/Event"
 import { ExtendedInteraction } from "../typings/command"
 
+/**
+ * Handler for slash commands
+ */
 export default new Event(Events.InteractionCreate, async (interaction) => {
     // Chat Input Commands
     if (!interaction.isCommand()) return;

@@ -1,4 +1,8 @@
-import { ApplicationCommandOptionType, ChannelType, MessageFlags } from "discord.js";
+import { 
+    ApplicationCommandOptionType, 
+    ChannelType, 
+    MessageFlags 
+} from "discord.js";
 
 import { Subcommand } from "../../../structures/Subcommand";
 

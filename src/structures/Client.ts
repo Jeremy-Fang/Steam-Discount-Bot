@@ -18,7 +18,9 @@ import { getCommandMap, getSubcommandMap } from '../utilities/commandsHelper';
 
 
 export class ExtendedClient extends Client {
+    // maps command names to functions to execute
     commands: Collection<string, CommandType> = new Collection();
+    // maps subcommand to parent commands
     subcommands: Collection<string, Collection<string, SubCommandType>> = new Collection();
 
     constructor () {
@@ -30,16 +32,9 @@ export class ExtendedClient extends Client {
         this.login(process.env.DISCORD_BOT_TOKEN);
     }
 
-    async registerCommands({ commands, guildId }: RegisterCommandsOptions) {
-        if (guildId) {
-            this.guilds.cache.get(guildId)?.commands.set(commands);
-            console.log(`Registering commands to ${guildId}`);
-        } else {
-            this.application?.commands.set(commands);
-            console.log(`Registering global commands`);
-        }
-    }
-
+    /**
+     * Imports and creates prerequisite maps/event listeners upon bot startup
+     */
     async registerModules() {
         // Register sub commands before commands because they are required as options (for parent commands)
         this.subcommands = await getSubcommandMap();
