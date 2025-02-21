@@ -1,8 +1,8 @@
 import { ApplicationCommandOptionType, MessageFlags } from "discord.js";
 
-import { SubCommand } from "../../../structures/SubCommand";
+import { Subcommand } from "../../../structures/Subcommand";
 
-export default new SubCommand({
+export default new Subcommand({
     name: 'add',
     description: 'Add a game to the authorized IsThereAnyDeal waitlist',
     options: [

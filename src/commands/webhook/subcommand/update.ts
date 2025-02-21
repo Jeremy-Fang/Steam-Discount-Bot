@@ -1,8 +1,8 @@
 import { ApplicationCommandOptionType, ChannelType, MessageFlags } from "discord.js";
 
-import { SubCommand } from "../../../structures/SubCommand";
+import { Subcommand } from "../../../structures/Subcommand";
 
-export default new SubCommand({
+export default new Subcommand({
     name: 'update',
     description: 'Updates channel that is linked to a webhook (identified by uuid)',
     options: [

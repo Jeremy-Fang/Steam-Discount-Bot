@@ -11,13 +11,15 @@ import { DiscordAPIPutResponse } from '../typings/rest';
 
 import { Event } from './Event';
 import { RegisterCommandsOptions } from '../typings/client';
-import { getCommandFilePaths, getEventFilePaths, getSubCommandFiles } from '../utilities/parser';
+import { getEventFilePaths } from '../utilities/parser';
 import { SubCommandType } from '../typings/subcommand';
+
+import { getCommandMap, getSubcommandMap } from '../utilities/commandsHelper';
 
 
 export class ExtendedClient extends Client {
     commands: Collection<string, CommandType> = new Collection();
-    subCommands: Collection<string, Collection<string, SubCommandType>> = new Collection();
+    subcommands: Collection<string, Collection<string, SubCommandType>> = new Collection();
 
     constructor () {
         super({ intents: 32767 });
@@ -39,42 +41,20 @@ export class ExtendedClient extends Client {
     }
 
     async registerModules() {
-        // Commands
-        const commandFiles = await getCommandFilePaths(__dirname);
+        // Register sub commands before commands because they are required as options (for parent commands)
+        this.subcommands = await getSubcommandMap();
 
-        commandFiles.forEach(async (filePath) => {
-            const command: CommandType = (await import(filePath))?.default;
+        // Import and map commands
+        this.commands = await getCommandMap();
 
-            if (!command.name) return;
-
-            this.commands.set(command.name, command);
-        });
-
-        const subCommandFiles = await getSubCommandFiles(__dirname);
-
-        // SubCommands
-        subCommandFiles.forEach(async (filePath) => {
-            const subCommand: SubCommandType = (await import(filePath))?.default;
-            const directories = filePath.split('/');
-            const parentDirectory = directories[directories.length-3];
-
-            if (!subCommand.name) return;
-
-            if (!this.subCommands.get(parentDirectory)) {
-                this.subCommands.set(parentDirectory, new Collection<string, SubCommandType>());
-            }
-
-            this.subCommands.get(parentDirectory).set(subCommand.name, subCommand);
-        });
-
-        // Events
+        // Import and instantiate event listeners
         const eventFiles = await getEventFilePaths(__dirname);
 
-        eventFiles.forEach(async (filePath) => {
-            const event: Event<keyof ClientEvents> = (await import(filePath))?.default;
+        for (const file of eventFiles) {
+            const event: Event<keyof ClientEvents> = (await import(file))?.default;
 
             this.on(event.event, event.run);
-        });
+        }
     }
 
     /**
@@ -83,22 +63,7 @@ export class ExtendedClient extends Client {
      */
     async deployCommands() {
         try {
-            const commandFiles = await getCommandFilePaths(__dirname);
-            const commands: CommandType[] = [];
-
-            for (const file of commandFiles) {
-                delete require.cache[file];
-    
-                const command: CommandType = (await import(file))?.default;
-
-                if (!command.name || !command.description || !command.run) {
-                    console.log(`[WARNING] The command at ${file} is missing a required property.`)
-    
-                    return;
-                }
-    
-                commands.push(command);
-            }
+            const commands: CommandType[] = [...((await getCommandMap()).values())].map(command => command as CommandType);
 
             console.log("commands", commands);
     

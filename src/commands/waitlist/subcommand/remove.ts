@@ -1,8 +1,8 @@
 import { ApplicationCommandOptionType, MessageFlags } from "discord.js";
 
-import { SubCommand } from "../../../structures/SubCommand";
+import { Subcommand } from "../../../structures/Subcommand";
 
-export default new SubCommand({
+export default new Subcommand({
     name: 'remove',
     description: 'Remove a game from the authorized IsThereAnyDeal waitlist',
     options: [

@@ -1,8 +1,8 @@
 import { ApplicationCommandOptionType, ChannelType, MessageFlags } from "discord.js";
 
-import { SubCommand } from "../../../structures/SubCommand";
+import { Subcommand } from "../../../structures/Subcommand";
 
-export default new SubCommand({
+export default new Subcommand({
     name: 'create',
     description: 'Create new Discord webhook',
     options: [
