@@ -5,7 +5,6 @@ export const globPathToPath = (path: string) => {
 }
 
 export const getCommandFilePaths = async (path: string) => {
-    console.log(await glob(`${path}`))
     return (await glob(`${path}/../../commands/*/*.{ts,js}`, { cwd: path }))
         .map(filePath => globPathToPath(filePath))
         .map(filePath => filePath.slice(0, filePath.lastIndexOf('.')));
@@ -18,7 +17,7 @@ export const getEventFilePaths = async (path: string) => {
 }
 
 export const getSubCommandFiles = async (path: string) => {
-    return (await glob(`${path}/subcommands/*.{ts,js}`, { cwd: path }))
-        .map(filePath => `./${globPathToPath(filePath)}`)
+    return (await glob(`${path}/../../commands/*/subcommand/*.{ts,js}`, { cwd: path }))
+        .map(filePath => globPathToPath(filePath))
         .map(filePath => filePath.slice(0, filePath.lastIndexOf('.')));
 }

@@ -1,16 +1,14 @@
 import {
-    Collection,
     CommandInteractionOptionResolver,
     MessageFlags
 } from "discord.js";
 
 import { Command } from "../../structures/Command";
 
-import create from './/subcommands/create'
-import update from './subcommands/update'
+import create from './subcommand/create';
+import update from './subcommand/update';
+import _delete from './subcommand/delete'
 
-import { getSubCommandFiles } from "../../utilities/parser";
-import { SubCommandType } from "../../typings/subcommand";
 import { ExtendedInteraction } from "../../typings/command";
 
 import { client } from '../../index';
@@ -21,25 +19,15 @@ export default new Command({
     options: [
         create,
         update,
+        _delete
     ],
     run: async ({ interaction }) => {
-        console.log(interaction.options.data);
-
         if (!interaction.options.data.length) await interaction.reply({ content: 'Invalid Subcommand', flags: MessageFlags.Ephemeral });
 
-        const subCommandFiles = await getSubCommandFiles(__dirname);
-        const subCommands = new Collection<string, SubCommandType>();
-
-        for (const file of subCommandFiles) {
-            const subCommand: SubCommandType = (await import(file))?.default;
-
-            if (!subCommand.name) return;
-
-            subCommands.set(subCommand.name, subCommand);
-        }
-
         const commandName = interaction.options.data[0].name;
-        const command = subCommands.get(commandName);
+        const command = client.subCommands.get('webhook')?.get(commandName);
+
+        if (!command) await interaction.reply({ content: 'Something went wrong', flags: MessageFlags.Ephemeral });
 
         await command.run({
             args: interaction.options as CommandInteractionOptionResolver,

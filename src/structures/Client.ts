@@ -11,10 +11,13 @@ import { DiscordAPIPutResponse } from '../typings/rest';
 
 import { Event } from './Event';
 import { RegisterCommandsOptions } from '../typings/client';
-import { getCommandFilePaths, getEventFilePaths } from '../utilities/parser';
+import { getCommandFilePaths, getEventFilePaths, getSubCommandFiles } from '../utilities/parser';
+import { SubCommandType } from '../typings/subcommand';
+
 
 export class ExtendedClient extends Client {
     commands: Collection<string, CommandType> = new Collection();
+    subCommands: Collection<string, Collection<string, SubCommandType>> = new Collection();
 
     constructor () {
         super({ intents: 32767 });
@@ -47,6 +50,22 @@ export class ExtendedClient extends Client {
             this.commands.set(command.name, command);
         });
 
+        const subCommandFiles = await getSubCommandFiles(__dirname);
+
+        // SubCommands
+        subCommandFiles.forEach(async (filePath) => {
+            const subCommand: SubCommandType = (await import(filePath))?.default;
+            const directories = filePath.split('/');
+            const parentDirectory = directories[directories.length-3];
+
+            if (!subCommand.name) return;
+
+            if (!this.subCommands.get(parentDirectory)) {
+                this.subCommands.set(parentDirectory, new Collection<string, SubCommandType>());
+            }
+
+            this.subCommands.get(parentDirectory).set(subCommand.name, subCommand);
+        });
 
         // Events
         const eventFiles = await getEventFilePaths(__dirname);
