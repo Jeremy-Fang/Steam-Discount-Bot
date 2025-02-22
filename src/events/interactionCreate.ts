@@ -10,6 +10,8 @@ export default new Event(Events.InteractionCreate, async (interaction) => {
     // Chat Input Commands
     if (!interaction.isCommand()) return;
 
+    console.log("Interaction", interaction);
+    
     try {
         const command = client.commands.get(interaction.commandName);
     
