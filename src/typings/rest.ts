@@ -14,8 +14,16 @@ export interface AdapterDocument {
     };
 }
 
-export interface AdapterResponse {
+export interface RESTResponse {
     status: number;
+}
+
+export interface AdapterResponse extends RESTResponse {
     message ?: string;
     document ?: AdapterDocument;
+}
+
+export interface AuthResponse extends RESTResponse {
+    message ?: string;
+    token ?: string;
 }

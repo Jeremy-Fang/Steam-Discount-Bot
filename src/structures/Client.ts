@@ -59,8 +59,6 @@ export class ExtendedClient extends Client {
         try {
             const commands: CommandType[] = [...((await getCommandMap()).values())];
 
-            console.log("commands", commands);
-    
             const rest = new REST().setToken(process.env.DISCORD_BOT_TOKEN);
     
             // deploy the commands
