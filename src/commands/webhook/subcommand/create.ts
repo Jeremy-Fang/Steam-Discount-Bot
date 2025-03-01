@@ -6,7 +6,7 @@ import {
 } from "discord.js";
 
 import { Subcommand } from "../../../structures/Subcommand";
-import { createAdaptedURL } from "../../../services/adapter";
+import { createAdaptedUrl } from "../../../services/adapter";
 import { AdapterResponse } from "../../../typings/rest";
 import { stringify } from "uuid";
 
@@ -24,8 +24,10 @@ export default new Subcommand({
     ],
     run: async ({ interaction }) => {
         try {
+            // get channel from command parameters
             const channel = interaction.options.get('channel').channel as TextChannel;
 
+            // Creates Discord webhook
             const webhook = await channel.createWebhook({
                 name: 'Steam Discount Bot',
                 avatar: 'https://cdn.freebiesupply.com/images/large/2x/steam-logo-transparent.png',
@@ -36,7 +38,8 @@ export default new Subcommand({
             } else {
                 const webhookUrl = `${process.env.DISCORD_WEBHOOK_BASE_URL}/${webhook.id}/${webhook.token}`;
 
-                const response = (await createAdaptedURL(webhookUrl)) as AdapterResponse;
+                // add webhook id, token to database
+                const response = (await createAdaptedUrl(webhookUrl)) as AdapterResponse;
 
                 if (!response || response.status != 200) await interaction.reply({ content: `${ response?.message }`, flags: MessageFlags.Ephemeral });
 
@@ -46,6 +49,7 @@ export default new Subcommand({
                 // New adapted webhook Url
                 const adaptedUrl = `${process.env.ADAPTER_API_BASE_URL}/api/adapter/${uuid}`;
 
+                // test if webhook works
                 await webhook.send("o/");
 
                 await interaction.reply({ 

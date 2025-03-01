@@ -10,7 +10,6 @@ import { CommandType } from '../typings/command';
 import { DiscordAPIPutResponse } from '../typings/rest';
 
 import { Event } from './Event';
-import { RegisterCommandsOptions } from '../typings/client';
 import { getEventFilePaths } from '../utilities/parser';
 import { SubCommandType } from '../typings/subcommand';
 
@@ -58,7 +57,7 @@ export class ExtendedClient extends Client {
      */
     async deployCommands() {
         try {
-            const commands: CommandType[] = [...((await getCommandMap()).values())].map(command => command as CommandType);
+            const commands: CommandType[] = [...((await getCommandMap()).values())];
 
             console.log("commands", commands);
     

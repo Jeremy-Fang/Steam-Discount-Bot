@@ -3,7 +3,11 @@ import {
     MessageFlags 
 } from "discord.js";
 
+import { validate as validUUID } from 'uuid';
+
 import { Subcommand } from "../../../structures/Subcommand";
+import { deleteAdaptedUrl } from "../../../services/adapter";
+import { AdapterResponse } from "../../../typings/rest";
 
 export default new Subcommand({
     name: 'delete',
@@ -17,6 +21,24 @@ export default new Subcommand({
         }
     ],
     run: async ({ interaction }) => {
-        await interaction.reply({ content: `Deleted Webhook for UUID ${ interaction.options.get('uuid')?.value }`, flags: MessageFlags.Ephemeral })
+        try {
+            // get uuid from command parameters
+            const uuid = interaction.options.get('uuid').value as string;
+
+            if (!validUUID(uuid)) {
+                await interaction.reply({ content: 'UUID provided was not a valid UUID', flags: MessageFlags.Ephemeral });
+            } else {
+                // delete entry in database matching provided uuid
+                const response = (await deleteAdaptedUrl(uuid)) as AdapterResponse;
+
+                if (!response || response.status != 200) return await interaction.reply({ content: `${ response?.message }`, flags: MessageFlags.Ephemeral });
+
+                await interaction.reply({ content: `Deleted Webhook for UUID ${ interaction.options.get('uuid')?.value }`, flags: MessageFlags.Ephemeral });
+            }
+        } catch (err) {
+            console.error(err);
+
+            await interaction.reply({ content: `Something went wrong`, flags: MessageFlags.Ephemeral });
+        }
     }       
 })
