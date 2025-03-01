@@ -14,6 +14,12 @@ export interface AdapterDocument {
     };
 }
 
+export interface TokenDocument {
+    _id: string;
+    discord_id: string;
+    token: string;
+}
+
 export interface RESTResponse {
     status: number;
 }
@@ -25,5 +31,5 @@ export interface AdapterResponse extends RESTResponse {
 
 export interface AuthResponse extends RESTResponse {
     message ?: string;
-    token ?: string;
+    document ?: TokenDocument;
 }
