@@ -31,7 +31,7 @@ export default new Event(Events.InteractionCreate, async (interaction) => {
 
         console.log("command: ", interaction.commandName);
         
-        await command.run({
+        return await command.run({
             args: interaction.options as CommandInteractionOptionResolver,
             client,
             interaction: interaction as ExtendedInteraction
@@ -40,10 +40,10 @@ export default new Event(Events.InteractionCreate, async (interaction) => {
         console.error(err);
         
         if (interaction.replied || interaction.deferred) {
-            await interaction.followUp({ content: 'There was an error while executing this command!', flags: MessageFlags.Ephemeral });
+            return await interaction.followUp({ content: 'There was an error while executing this command!', flags: MessageFlags.Ephemeral });
         }
         else {
-            await interaction.reply({ content: 'There was an error while executing this command!', flags: MessageFlags.Ephemeral });
+            return await interaction.reply({ content: 'There was an error while executing this command!', flags: MessageFlags.Ephemeral });
         }
     }
 })

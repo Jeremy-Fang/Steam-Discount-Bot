@@ -63,7 +63,7 @@ export default new Subcommand({
         } catch (err) {
             console.error(err);
 
-            await interaction.reply({ content: `Something went wrong`, flags: MessageFlags.Ephemeral });
+            return await interaction.reply({ content: `Something went wrong`, flags: MessageFlags.Ephemeral });
         }
     }       
 })

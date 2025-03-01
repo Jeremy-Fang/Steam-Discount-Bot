@@ -1,5 +1,3 @@
-import { UUID } from "crypto";
-
 export interface DiscordAPIPutResponse {
     length: number;
 }
@@ -17,7 +15,11 @@ export interface AdapterDocument {
 export interface TokenDocument {
     _id: string;
     id: string;
-    access_token: string;
+    accessToken: string;
+}
+
+export interface GameDocument {
+    
 }
 
 export interface RESTResponse {
@@ -34,4 +36,9 @@ export interface SQLiteResponse extends RESTResponse {
     document ?: TokenDocument;
     updatedEntries ?: number;
     deletedEntries ?: number;
+}
+
+export interface ITADResponse extends RESTResponse {
+    message ?: string;
+    content: Object;
 }
