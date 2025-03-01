@@ -1,12 +1,13 @@
 import { 
     ApplicationCommandOptionType, 
-    MessageFlags 
+    MessageFlags,
+    WebhookClient
 } from "discord.js";
 
 import { validate as validUUID } from 'uuid';
 
 import { Subcommand } from "../../../structures/Subcommand";
-import { deleteAdaptedUrl } from "../../../services/adapter";
+import { deleteAdaptedUrl, getAdaptedUrl } from "../../../services/adapter";
 import { AdapterResponse } from "../../../typings/rest";
 
 export default new Subcommand({
@@ -28,12 +29,30 @@ export default new Subcommand({
             if (!validUUID(uuid)) {
                 await interaction.reply({ content: 'UUID provided was not a valid UUID', flags: MessageFlags.Ephemeral });
             } else {
-                // delete entry in database matching provided uuid
-                const response = (await deleteAdaptedUrl(uuid)) as AdapterResponse;
+                // check if entry in database exists
+                const response = (await getAdaptedUrl(uuid)) as AdapterResponse;
 
                 if (!response || response.status != 200) return await interaction.reply({ content: `${ response?.message }`, flags: MessageFlags.Ephemeral });
 
-                await interaction.reply({ content: `Deleted Webhook for UUID ${ interaction.options.get('uuid')?.value }`, flags: MessageFlags.Ephemeral });
+                if (!response.document) return await interaction.reply({ content: `document matching uuid: ${ uuid } does not exist`, flags: MessageFlags.Ephemeral }); 
+                
+                const discordWebhook = new WebhookClient({
+                    id: response.document.webhook_id,
+                    token: response.document.token
+                });
+
+                // delete the webhook on the Discord server
+                await discordWebhook.delete();
+
+                // delete entry in database matching provided uuid
+                const deleted = (await deleteAdaptedUrl(uuid)) as AdapterResponse;
+
+                if (!deleted || deleted.status != 200) return await interaction.reply({ content: `${ deleted?.message }`, flags: MessageFlags.Ephemeral });
+
+                return await interaction.reply({ 
+                    content: `Deleted Webhook for UUID ${ uuid }`, 
+                    flags: MessageFlags.Ephemeral 
+                });
             }
         } catch (err) {
             console.error(err);

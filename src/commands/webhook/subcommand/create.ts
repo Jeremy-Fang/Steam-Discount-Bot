@@ -26,6 +26,7 @@ export default new Subcommand({
         try {
             // get channel from command parameters
             const channel = interaction.options.get('channel').channel as TextChannel;
+            const channelName = channel.name;
 
             // Creates Discord webhook
             const webhook = await channel.createWebhook({
@@ -34,14 +35,16 @@ export default new Subcommand({
             });
     
             if (!webhook) {
-                await interaction.reply({ content: 'Something went wrong when creating the webhook', flags: MessageFlags.Ephemeral });
+                return await interaction.reply({ 
+                    content: 'Something went wrong when creating the webhook', 
+                    flags: MessageFlags.Ephemeral 
+                
+                });
             } else {
-                const webhookUrl = `${process.env.DISCORD_WEBHOOK_BASE_URL}/${webhook.id}/${webhook.token}`;
-
                 // add webhook id, token to database
-                const response = (await createAdaptedUrl(webhookUrl)) as AdapterResponse;
+                const response = (await createAdaptedUrl(webhook.id, webhook.token)) as AdapterResponse;
 
-                if (!response || response.status != 200) await interaction.reply({ content: `${ response?.message }`, flags: MessageFlags.Ephemeral });
+                if (!response || response.status != 200) return await interaction.reply({ content: `${ response?.message }`, flags: MessageFlags.Ephemeral });
 
                 // converts UUID to string
                 const uuid = stringify(Uint8Array.from(response.document.uuid.data));
@@ -52,8 +55,8 @@ export default new Subcommand({
                 // test if webhook works
                 await webhook.send("o/");
 
-                await interaction.reply({ 
-                    content: `Created Webhook for channel #${ interaction.options.get('channel')?.channel.name } with a webhook URL of ${adaptedUrl}`, 
+                return await interaction.reply({ 
+                    content: `Created Webhook for channel #${ channelName } with a webhook URL of ${ adaptedUrl }`, 
                     flags: MessageFlags.Ephemeral 
                 });
             }
