@@ -16,8 +16,8 @@ export interface AdapterDocument {
 
 export interface TokenDocument {
     _id: string;
-    discord_id: string;
-    token: string;
+    id: string;
+    access_token: string;
 }
 
 export interface RESTResponse {
@@ -29,7 +29,7 @@ export interface AdapterResponse extends RESTResponse {
     document ?: AdapterDocument;
 }
 
-export interface AuthResponse extends RESTResponse {
+export interface SQLiteResponse extends RESTResponse {
     message ?: string;
     document ?: TokenDocument;
 }
