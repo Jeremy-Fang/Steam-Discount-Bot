@@ -22,10 +22,10 @@ export default new Command({
     run: async ({ interaction }) => {
         // get Discord user id
         const id = interaction.user.id;
-        const access_token = interaction.options.get('access_token')?.value as string;
+        const accessToken = interaction.options.get('access_token')?.value as string;
 
         // register access token with discord user id in sqlite database
-        const response = await registerToken(id, access_token) as SQLiteResponse;
+        const response = await registerToken(id, accessToken) as SQLiteResponse;
         
         if (!response || response.status != 200) return await interaction.reply({ content: `${ response?.message }`, flags: MessageFlags.Ephemeral });
 

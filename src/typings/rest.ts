@@ -32,4 +32,6 @@ export interface AdapterResponse extends RESTResponse {
 export interface SQLiteResponse extends RESTResponse {
     message ?: string;
     document ?: TokenDocument;
+    updatedEntries ?: number;
+    deletedEntries ?: number;
 }

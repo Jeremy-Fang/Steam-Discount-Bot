@@ -14,6 +14,9 @@ export default new Subcommand({
         }
     ],
     run: async ({ interaction }) => {
-        await interaction.reply({ content: `Added Steam game with Id ${ interaction.options.get('id')?.value } to waitlist`, flags: MessageFlags.Ephemeral })
+        await interaction.reply({ 
+            content: `Added Steam game with Id ${ interaction.options.get('id')?.value } to waitlist`, 
+            flags: MessageFlags.Ephemeral 
+        });
     }       
 })

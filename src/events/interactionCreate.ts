@@ -2,6 +2,7 @@ import { CommandInteractionOptionResolver, Events, MessageFlags } from "discord.
 import { client } from ".."
 import { Event } from "../structures/Event"
 import { ExtendedInteraction } from "../typings/command"
+import { getToken } from "../services/db"
 
 /**
  * Handler for slash commands
@@ -9,15 +10,26 @@ import { ExtendedInteraction } from "../typings/command"
 export default new Event(Events.InteractionCreate, async (interaction) => {
     // Chat Input Commands
     if (!interaction.isCommand()) return;
-
-    console.log("Interaction", interaction);
     
     try {
         const command = client.commands.get(interaction.commandName);
-    
-        if (!command) return await interaction.followUp('You have used a non existent command');
+        const user = interaction.user.id;
 
-        console.log("command", command);
+        if (!command) return await interaction.reply({ content: 'You have used a non existent command', flags: MessageFlags.Ephemeral });
+        
+        // check if the user has an access code to run protected commands
+        if (interaction.commandName == 'waitlist') {
+            const entry = await getToken(user);
+
+            if (!entry || entry.status != 200) {
+                return await interaction.reply({ 
+                    content: 'You have not registered an IsThereAnyDeal access token with the bot. Thus you do not have access to waitlist commands', 
+                    flags: MessageFlags.Ephemeral 
+                });
+            }
+        }
+
+        console.log("command: ", interaction.commandName);
         
         await command.run({
             args: interaction.options as CommandInteractionOptionResolver,

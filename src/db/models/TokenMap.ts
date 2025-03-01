@@ -10,7 +10,7 @@ TokenMap.init(
             allowNull: false,
             primaryKey: true
         },
-        access_token: {
+        accessToken: {
             type: DataTypes.STRING,
             allowNull: false
         }
