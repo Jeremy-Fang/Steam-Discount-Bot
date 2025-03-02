@@ -20,7 +20,7 @@ export default new Command({
         if (!response || response.status != 200) return await interaction.reply({ content: `${ response?.message }`, flags: MessageFlags.Ephemeral });
 
         return await interaction.reply({ 
-            content: `Successfully unregistered access token to user ${ interaction.user.username }`, 
+            content: `Successfully unregistered access token from user ${ interaction.user.username }`, 
             flags: MessageFlags.Ephemeral 
         });
     }     

@@ -1,6 +1,6 @@
-import { 
-    ApplicationCommandOptionType, 
-    ChannelType, 
+import {
+    ApplicationCommandOptionType,
+    ChannelType,
     MessageFlags,
     TextChannel,
     WebhookClient
@@ -9,7 +9,7 @@ import {
 import { validate as validUUID } from 'uuid';
 
 import { Subcommand } from "../../../structures/Subcommand";
-import { getAdaptedUrl, updateAdaptedUrl } from "../../../services/adapter";
+import { getDiscordWebhook, updatePayloadUrl } from "../../../services/adapter";
 import { AdapterResponse } from "../../../typings/rest";
 
 export default new Subcommand({
@@ -39,54 +39,56 @@ export default new Subcommand({
             const channelName = channel.name;
 
             if (!validUUID(uuid)) {
-                await interaction.reply({ content: 'UUID provided was not a valid UUID', flags: MessageFlags.Ephemeral });
-            } else {
-                // check if entry in database exists
-                const response = (await getAdaptedUrl(uuid)) as AdapterResponse;
-
-                if (!response || response.status != 200) return await interaction.reply({ content: `${ response?.message }`, flags: MessageFlags.Ephemeral });
-
-                if (!response.document) return await interaction.reply({ content: `document matching uuid: ${ uuid } does not exist`, flags: MessageFlags.Ephemeral }); 
-                
-                const discordWebhook = new WebhookClient({
-                    id: response.document.webhook_id,
-                    token: response.document.token
-                });
-
-                // delete the webhook on the Discord server
-                await discordWebhook.delete();
-
-                // Creates Discord webhook
-                const webhook = await channel.createWebhook({
-                    name: 'Steam Discount Bot',
-                    avatar: 'https://cdn.freebiesupply.com/images/large/2x/steam-logo-transparent.png',
-                });
-                
-                if (!webhook) {
-                    return await interaction.reply({ 
-                        content: 'Something went wrong when creating the webhook', 
-                        flags: MessageFlags.Ephemeral 
-                    
-                    });
-                } else {
-                    // update webhook id, token in database
-                    const response = (await updateAdaptedUrl(uuid, webhook.id, webhook.token)) as AdapterResponse;
-    
-                    if (!response || response.status != 200) return await interaction.reply({ content: `${ response?.message }`, flags: MessageFlags.Ephemeral });
-    
-                    // test if webhook works
-                    await webhook.send("o/");
-    
-                    await interaction.reply({ 
-                        content: `Updated Webhook with UUID ${ uuid } to map to channel #${ channelName }`, 
-                        flags: MessageFlags.Ephemeral 
-                    });
-                }
+                return await interaction.reply({ content: 'UUID provided was not valid', flags: MessageFlags.Ephemeral });
             }
+
+            // check if entry in database exists
+            const response = (await getDiscordWebhook(uuid)) as AdapterResponse;
+
+            if (!response || response.status != 200) return await interaction.reply({ content: `${response?.message}`, flags: MessageFlags.Ephemeral });
+
+            if (!response.document) return await interaction.reply({ content: `Webhook matching UUID: ${uuid} does not exist`, flags: MessageFlags.Ephemeral });
+
+            const discordWebhook = new WebhookClient({
+                id: response.document.webhook_id,
+                token: response.document.token
+            });
+
+            // delete the webhook on the Discord server
+            await discordWebhook.delete();
+
+            // Creates Discord webhook
+            const updatedWebhook = await channel.createWebhook({
+                name: 'Steam Discount Bot',
+                avatar: 'https://cdn.freebiesupply.com/images/large/2x/steam-logo-transparent.png',
+            });
+
+            if (!updatedWebhook) {
+                return await interaction.reply({
+                    content: 'Something went wrong when creating the webhook',
+                    flags: MessageFlags.Ephemeral
+
+                });
+            }
+
+            // update webhook id, token in database
+            const updateResponse = (await updatePayloadUrl(uuid, updatedWebhook.id, updatedWebhook.token)) as AdapterResponse;
+
+            if (!updateResponse || updateResponse.status != 200) return await interaction.reply({ content: `${updateResponse?.message}`, flags: MessageFlags.Ephemeral });
+
+            // test if webhook works
+            await updatedWebhook.send("o/");
+
+            const payloadUrl = `${process.env.ADAPTER_API_BASE_URL}/api/adapter/${uuid}`;
+
+            await interaction.reply({
+                content: `Updated Payload URL at ${payloadUrl} to map to channel #${channelName}`,
+                flags: MessageFlags.Ephemeral
+            });
         } catch (err) {
             console.error(err);
 
             return await interaction.reply({ content: `Something went wrong`, flags: MessageFlags.Ephemeral });
         }
-    }            
+    }
 })

@@ -1,12 +1,12 @@
 
 /**
  * Function which makes POST to adapter API to get a webkhook URL
- * that transforms POST data into readable form by Discord webhooks 
+ * that transforms IsThereAnyDeal POST data into readable form by Discord webhooks 
  * 
  * @param url Discord webhook URL
  * @returns AdapterResponse REST response
  */
-export const createAdaptedUrl = async (id: string, token: string) => {
+export const createPayloadUrl = async (id: string, token: string) => {
     try {
         const headers = {
             'Content-Type': 'application/json'
@@ -29,12 +29,12 @@ export const createAdaptedUrl = async (id: string, token: string) => {
 }
 
 /**
- * Function which gets a db entry matching the provided uuid
+ * Function which gets a Discord webhook matching the provided uuid
  * 
  * @param uuid UUID
  * @return AdapterResponse REST response 
  */
-export const getAdaptedUrl = async (uuid: string) => {
+export const getDiscordWebhook = async (uuid: string) => {
     try {
         const headers = {
             'Content-Type': 'application/json'
@@ -61,7 +61,7 @@ export const getAdaptedUrl = async (uuid: string) => {
  * @param  Discord webhook URL
  * @returns AdapterResponse REST response
  */
-export const updateAdaptedUrl = async (uuid: string, id: string, token: string) => {
+export const updatePayloadUrl = async (uuid: string, id: string, token: string) => {
     try {
         const headers = {
             'Content-Type': 'application/json'
@@ -90,7 +90,7 @@ export const updateAdaptedUrl = async (uuid: string, id: string, token: string) 
  * @param uuid UUID
  * @returns AdapterResponse REST response
  */
-export const deleteAdaptedUrl = async (uuid: string) => {
+export const deletePayloadUrl = async (uuid: string) => {
     try {
         const headers = {
             'Content-Type': 'application/json'
